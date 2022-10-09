@@ -24,6 +24,7 @@ class Scrape:
         result = res1 + splitted_query[-1]
         query_url = self.url+result
         return query_url
+    
     def Scraper(self,query):
         url = self.Url_Generator(query)
         response = requests.get(url).text
@@ -32,8 +33,6 @@ class Scrape:
         html_text = re.search("var ytInitialData = (.+)[,;]{1}",lol.text).group(1)
         html_text.replace("true","True")
         json_data = json.loads(html_text)
-
-
 
         content = (
             json_data["contents"]["twoColumnSearchResultsRenderer"]["primaryContents"]
