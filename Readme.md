@@ -3,4 +3,4 @@
 
 1. ``` pip install -r requirements.txt ```
 
-2. ``` uvicorn main:app --reload ```
+2. ``` uvicorn.exe main:app --reload ```
