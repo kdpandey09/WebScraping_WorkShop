@@ -3,4 +3,4 @@
 
 1. ``` pip install -r requirements.txt ```
 
-2. ``` unicorn main:app --reload ```
+2. ``` uvicorn main:app --reload ```
