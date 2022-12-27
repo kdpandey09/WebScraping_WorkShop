@@ -4,11 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from scraper import *
 
 Description = f"""
-Web Scraping BootCamp
+Youtube Search Result Scraper along with sort and additional data regarding the playback speed and the time video will play on different speeds
 
 """
 
-app = FastAPI(title="Web Sraping Bootcamp",description=Description)
+app = FastAPI(title="Youtube Scraper",description=Description)
 
 origins = ["*"]
 
