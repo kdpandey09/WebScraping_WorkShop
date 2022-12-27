@@ -41,42 +41,72 @@ class Scrape:
 
         A = []
         for data in content:
-            for key , value in data.items():
+            for value in data.values():
                 if type(value) is dict:
                     D = {}
                     for k,v in value.items():
                         if k == "videoId" and len(v)== 11:
                             D["URL"] = self.video_url+v
-                        if k=='title' and 'runs' in v:
+                        elif k=='title' and 'runs' in v:
                             D["Title"] = v['runs'][0]['text']
-                        if k == "publishedTimeText" and "simpleText" in v:
+                        elif k == "publishedTimeText" and "simpleText" in v:
                             D["Published"] = v["simpleText"]
-                        if k == "lengthText" and "simpleText" in v:
+                        elif k == "lengthText" and "simpleText" in v:
                             D["Duration"] = v["simpleText"]
-                    if D != {} : A.append(D)
+                    if D : A.append(D)
         return A
 
-    def data(self,query):
-        doc = self.Scraper(query)
-        for ele in doc:
-            try:
-                duration = ele["Duration"]
-                time_arr = duration.split(":")
-                time = 0
-                if len(time_arr) == 2:
-                    time = int(time_arr[1])*60 + int(time_arr[0])
-                elif len(time_arr) == 3:
-                    time = int(time_arr[2])*3600+int(time_arr[1])*60 + int(time_arr[0])
-                ele["Duration"] = {
-                    "0.25 x" : convert_time(time/0.25),
-                    "0.5 x"  : convert_time(time/0.5),
-                    "1.0 x"  : convert_time(time),
-                    "1.25 x" : convert_time(time/1.25),
-                    "1.5 x"  : convert_time(time/1.5),
-                    "2.0 x"  : convert_time(time/2)
-                }
-            except:
-                pass
-        return doc
+    def data(self,query,Sort):
+
+        try:
+            doc = self.Scraper(query)
+            result=[]
+            if Sort:
+                seconds,minutes,hours,days,weeks,months,years=([] for _ in range(7))
+            for ele in doc:
+                    duration = ele["Duration"]
+                    time_arr = duration.split(":")
+                    time = 0
+                    if len(time_arr) == 2:
+                        time = int(time_arr[1])*60 + int(time_arr[0])
+                    elif len(time_arr) == 3:
+                        time = int(time_arr[2])*3600+int(time_arr[1])*60 + int(time_arr[0])
+                    ele["Duration"] = {
+                        "0.25 x" : convert_time(time/0.25),
+                        "0.5 x"  : convert_time(time/0.5),
+                        "1.0 x"  : convert_time(time),
+                        "1.25 x" : convert_time(time/1.25),
+                        "1.5 x"  : convert_time(time/1.5),
+                        "2.0 x"  : convert_time(time/2)
+                    }
+                    if Sort:
+                        temp=ele['Published'].split(" ")
+                        cursor=temp.index('ago')
+                        match temp[cursor-1]:
+                            case ('second'|'seconds'):
+                                seconds.append({'t':temp[cursor-2],'vid':ele})
+                            case ('minute'|'minutes'):
+                                minutes.append({'t':temp[cursor-2],'vid':ele})
+                            case ('hour'|'hours'):
+                                hours.append({'t':temp[cursor-2],'vid':ele})
+                            case ('day'|'days'):
+                                days.append({'t':temp[cursor-2],'vid':ele})
+                            case ('week'|'weeks'):
+                                weeks.append({'t':temp[cursor-2],'vid':ele})
+                            case ('month'|'months'):
+                                months.append({'t':temp[cursor-2],'vid':ele})
+                            case ('year'|'years'):
+                                years.append({'t':temp[cursor-2],'vid':ele})
+                    else:
+                        result.append(ele)
+                        
+            if Sort:
+                [ls.sort(key=lambda d: int(d['t'])) for ls in [seconds,minutes,hours,days,weeks,months,years]]
+                [result.append(ele['vid']) for ele in seconds+minutes+hours+days+weeks+months+years]
+
+            return result
+
+        except Exception as e:
+            raise e
 
 

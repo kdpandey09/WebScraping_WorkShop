@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request, Depends, Header,APIRouter
+from typing import Optional
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from scraper import *
 
@@ -21,7 +22,10 @@ app.add_middleware(
 
 scrape_tool = Scrape()
 
-@app.get("/Get_Data/{Query}",tags=["Scraping_Endpoint"])
-async def Get_Data(Query: str):
-    return scrape_tool.data(Query)
+@app.get("/Get_Data",tags=["Scraping_Endpoint"])
+async def Get_Data(Query: str, Sort:Optional[bool]=False):
+    try:
+        return scrape_tool.data(Query,Sort)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="The following error occured : " + str(e))
     
